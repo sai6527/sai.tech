@@ -1,0 +1,75 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+}
+
+group = 'org.innovitipos.starter'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.3.Final'
+
+    	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-autoconfigure')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	 compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-data-rest')	
+	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
+compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+
+// https://mvnrepository.com/artifact/javax.servlet/jstl
+compile group: 'javax.servlet', name: 'jstl', version: '1.2'
+
+// https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-el
+compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: '9.0.14'
+
+// https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-jasper
+compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.12'
+
+
+
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-tomcat
+compile group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: '2.2.2.RELEASE'
+	
+}
+test {
+	useJUnitPlatform()
+}
+
+task copyConfig(type: Copy) {
+    into project.buildDir.path+"/libs/config"
+    from "config"
+}
+
+//copy dependencies
+task copyRuntimeLibs(type: Copy) {
+    into project.buildDir.path+"/libs/lib"
+    from configurations.compile
+}	
+
+task createFolder{
+    def configDir = new File(project.buildDir.path+"/libs", "config")
+    def logDir = new File(project.buildDir.path+"/libs", "log")
+    def libDir = new File(project.buildDir.path+"/libs", "lib")
+
+    if(!logDir.exists()) {
+        logDir.mkdirs()
+    }
+    delete configDir
+    delete libDir
+
+    libDir.mkdirs()
+    configDir.mkdirs()
+}
+
+
+task zip{
+dependsOn bootJar
+dependsOn 'createFolder',  'copyRuntimeLibs' , 'copyConfig'
+}
